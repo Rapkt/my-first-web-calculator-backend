@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/calculator")
-@CrossOrigin(origins="http://localhost:4200")
+@CrossOrigin(origins="http://rapkt.github.io")
 public class controll {
 
 
