@@ -1,24 +1,17 @@
-# Use a lightweight JDK image
-FROM eclipse-temurin:17-jdk
+# Step 1: Use OpenJDK with Maven installed
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 
-# Set working directory
+# Step 2: Copy project files
 WORKDIR /app
+COPY . .
 
-# Copy Maven wrapper and pom.xml
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
+# Step 3: Build the JAR
+RUN mvn clean package -DskipTests
 
-# Download dependencies
-RUN ./mvnw dependency:go-offline -B
+# Step 4: Run the JAR in a lightweight JDK image
+FROM eclipse-temurin:21-jdk-jammy
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 
-# Copy the rest of the source code
-COPY src ./src
-
-# Build the application
-RUN ./mvnw clean package -DskipTests
-
-# Expose the default Spring Boot port
 EXPOSE 8080
-
-# Run the JAR file
-CMD ["java", "-jar", "target/calculatorapp-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
